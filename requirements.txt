@@ -1,0 +1,5 @@
+# Direct dependencies only. Transitive packages are resolved by pip.
+# Install: pip install -r requirements.txt
+
+anthropic>=1.13.0
+python-dotenv>=1.2.4
