@@ -1,5 +1,10 @@
 # AI Engineering Lab
 
+Long-term plan: @ROADMAP.md
+
+`ROADMAP.md` is the source of truth for the phases and their order.
+Linear is the source of truth for ticket status, scope and details.
+
 ## About Me
 
 - Senior Frontend Developer with 5+ years of commercial experience using React, TypeScript, and Next.js.
@@ -58,11 +63,11 @@ larger AI system
 evaluation and production concerns
 ```
 
-Early work focuses on small exercises.
+Phase 1 is isolated exercises in `exercises/`.
 
-Later, concepts may be combined into a larger project, probably an AI Travel Planner.
+From Phase 2 on, every phase adds a new capability to **one** service in `projects/travel-assistant/`.
 
-The larger project exists primarily as a vehicle for learning AI Engineering, not for building a business.
+That service exists primarily as a vehicle for learning AI Engineering, not for building a business.
 
 For now, avoid unnecessary work on:
 
@@ -222,6 +227,16 @@ Claude may:
 - suggest improvements
 - discuss alternatives
 
+Each `DESIGN.md` contains a **Predictions** section: testable claims derived from theory, written *before* the implementation.
+
+Example:
+
+```text
+Vague descriptions will misroute at least 3 of the 15 prompts to `calculate`.
+```
+
+A prediction must be falsifiable. The point is to commit to an expectation before seeing the result.
+
 Do not rewrite or replace `DESIGN.md` automatically unless I explicitly ask.
 
 The purpose is not to produce perfect documentation.
@@ -244,6 +259,8 @@ Use it to record things such as:
 - ideas for later exercises
 - things I would change in a production system
 
+Each `NOTES.md` also contains a **Theory vs reality** section that goes through every prediction from `DESIGN.md` and marks it confirmed, refuted or inconclusive — with the reason.
+
 This does not need to be formal documentation.
 
 ---
@@ -255,6 +272,18 @@ This repository uses Linear and GitHub to keep the learning work organized like 
 This workflow is **project infrastructure**, not a primary learning objective.
 
 Do not spend unnecessary time optimizing the project-management workflow itself.
+
+### Roles
+
+**Backlog owner: ChatGPT.** It owns the roadmap and the creation/restructuring of Linear tickets.
+
+**Claude Code works on the current ticket.** For that ticket it may:
+
+- move its status
+- tick its checkboxes
+- link PRs to it
+
+For anything else — other tickets, the roadmap, the phase order — Claude Code *proposes*, and I decide. Do not edit them directly.
 
 ### Linear
 
@@ -274,6 +303,13 @@ Tickets should describe:
 - relevant context
 - acceptance criteria
 - scope
+
+When a ticket is derived from external source material, it also includes:
+
+- **Original exercise (verbatim from source)**
+- **Differences between this ticket and the original**
+
+This keeps the source intent visible and makes every deliberate deviation explicit.
 
 ### Git
 
@@ -305,37 +341,25 @@ Example:
 AI-5: implement minimal agent loop
 ```
 
+When a ticket is done, tick it in `ROADMAP.md` in the same PR.
+
 GitHub/Linear/MCP integrations exist to make the repository easier to manage and to give realistic experience with AI-assisted engineering workflows.
 
 They should not distract from the AI Engineering concept currently being learned.
 
 ---
 
-## Initial Exercises
+## Phase 1 — Exercises
 
-The current planned exercises are:
+Phase 1 is a set of isolated exercises, `AI-5` … `AI-11`, each in its own folder under `exercises/`.
 
-| # | Ticket | Topic |
-|---|---|---|
-| 01 | AI-5 | Agent loop with one calculator tool |
-| 02 | AI-6 | Tool design: descriptions and routing |
-| 03 | AI-7 | Tool errors and recovery |
-| 04 | AI-8 | Structured output with JSON schema |
-| 05 | AI-9 | Validation and retry with feedback |
-| 06 | AI-10 | Context management |
-| 07 | AI-11 | MCP basics |
-
-These are an initial roadmap, not a permanent curriculum.
-
-The roadmap may change as I learn more and after comparing it against real AI Engineer / Applied AI Engineer job requirements.
+Goal, scope and status of each one live in Linear — do not duplicate them here.
 
 Source material:
 
 `https://claudecertificationguide.com/learn/exercises`
 
-Do not assume every exercise from the guide must be completed.
-
-The goal is skill development, not completing a checklist.
+Do not assume every exercise from the guide must be completed. The goal is skill development, not completing a checklist.
 
 ---
 
@@ -362,10 +386,12 @@ ai-engineering-lab/
 │   └── ...
 │
 └── projects/
-    └── ...
+    └── travel-assistant/      # Phase 2+ : one evolving service
 ```
 
 Exercise folders should remain reasonably self-contained and easy to run.
+
+`exercises/` is frozen after `AI-11`: later phases do not add exercises, they extend the service.
 
 Do not over-engineer the repository structure before it becomes necessary.
 
@@ -450,27 +476,18 @@ When the MCP exercise begins, MCP itself becomes the learning subject and should
 
 ---
 
-## Larger Project Direction
+## The Service — `projects/travel-assistant/`
 
-Later, concepts from the isolated exercises may be combined into a larger AI system.
+From Phase 2 on, all work evolves a single service. Each phase adds a capability on top of the existing code, the way real work does, instead of starting a new folder.
 
-The likely project is an AI Travel Planner involving concepts such as:
+Travel is only the **domain** used for engineering practice. It is not a product:
 
-- external API tools
-- flight and hotel search
-- structured itineraries
-- agent orchestration
-- constraints
-- retrieval
-- RAG
-- evals
-- observability
-- reliability
-- backend APIs
+- no UI
+- no authentication
+- no payments
+- no real bookings
 
-The purpose of this project will initially be to practice AI Engineering.
-
-Avoid turning it into a startup prematurely.
+unless a phase explicitly needs one of them.
 
 Before adding a significant feature, ask:
 
