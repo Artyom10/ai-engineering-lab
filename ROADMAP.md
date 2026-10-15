@@ -14,7 +14,7 @@ Priorities come from 10 analysed AI Engineer vacancies: Python backend, agents, 
 ## Phase 1 — Foundations (isolated) · Linear: AI Engineering Lab — Foundations
 - [x] AI-5 Agent loop
 - [x] AI-6 Tool design & routing
-- [ ] AI-7 Tool errors & recovery
+- [x] AI-7 Tool errors & recovery
 - [ ] AI-8 Structured output
 - [ ] AI-9 Validation & retry
 - [ ] AI-10 Context management

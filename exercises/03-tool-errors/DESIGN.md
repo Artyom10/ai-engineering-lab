@@ -317,3 +317,80 @@ resisted: the payload goes into the context window on every call, and a bloated
 one costs tokens and distracts the model. "Why did this transient error stop
 being retryable" is a question for the log, where all three attempts are
 visible — not for the last response.
+
+## 14. Revisions after the first run
+
+The design above is unchanged — this section records what the first measurement
+(70 runs, variants `contract` / `naive`) showed to be wrong with the *experiment*
+rather than with the contract. The predictions in §11 stay as committed.
+
+### The validation scenario was not reproducible
+
+Two attempts at triggering a validation error from user input both failed before
+reaching the branch:
+
+| prompt | what happened |
+|---|---|
+| "Look up booking **number 12345**" | no tool call at all — the `input_schema` ("3 letters + 3 digits") vetoed the call before it was built |
+| "the reference is **abc-123**" | the model normalised the argument to `ABC123` itself, in 10 of 10 runs |
+
+So the model sanitises arguments upstream, and a validation error that depends
+on malformed user input is not reachable in practice. This is the same finding
+as 02 from the other side: **the schema constrains before the description or the
+payload ever gets a say.**
+
+The scenario now uses a rule the model cannot guess (this database wants
+`ABC123-2026`, not `ABC123`) declared by the run, not by the prompt. The error
+message states the fix, which is exactly what the category is for: the question
+becomes *can the model repair its arguments from the message*, not *can the user
+type something malformed*.
+
+The outcome is sticky rather than consumed from a queue, so an identical retry
+fails again — otherwise a second call would succeed whether or not the model
+actually corrected anything, and the metric would measure nothing.
+
+### The independent variable was the wrong one
+
+The first run varied the **payload** (`counted` / `assertive_empty`) while the
+system prompt spelled out the whole contract in both variants: *is_retryable is
+authoritative … a result with result_count 0 is NOT an error … never retry it.*
+
+The model therefore knew how to behave before it saw any payload, and the two
+variants came out nearly identical (3.0 vs 3.2 average calls on the exhausted
+transient; zero empty-query retries in both, including the bare `[]`).
+Prediction 1 was not tested — it was neutralised.
+
+A second axis is added: `rules`, i.e. whether the system prompt explains the
+contract at all.
+
+| variant | system prompt | payload |
+|---|---|---|
+| `contract` | states the rules | full |
+| `naive` | states the rules | no counters, bare empty |
+| `bare` | neutral | full |
+| `bare_naive` | neutral | no counters, bare empty |
+
+`bare` vs `bare_naive` is the comparison the exercise is actually about: does the
+*structure of the error* steer the model when nothing else does. `contract` vs
+`bare` measures the opposite question — how much of the behaviour was the prompt
+all along.
+
+The general lesson is bigger than this exercise: **an instruction in the system
+prompt can hide the effect of the thing you are trying to measure.** An ablation
+has to remove the alternative explanation, not just vary the variable.
+
+### One metric was conflating recovery with disobedience
+
+After `is_retryable: false`, calling the tool again with the *same* arguments
+ignores the advice, while calling it again with *corrected* arguments is
+precisely what a validation error asks for. The original metric counted both as
+"retried after a refusal", which would have scored successful recovery as a
+violation. Split into `retried_after_non_retryable` and
+`corrected_after_non_retryable`.
+
+### Scenario count
+
+§10 lists six scenarios; the harness runs seven. `transient` is split into
+`transient_exhausted` (never heals — tests the budget and `retry_exhausted`) and
+`transient_heals` (two timeouts, then success — tests that the budget does not
+break normal recovery).
